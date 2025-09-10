@@ -6,6 +6,11 @@ insert into storage.buckets (id, name, public)
 values ('photos', 'photos', true)
 on conflict (id) do nothing;
 
+-- Static assets bucket (logos, kapaklar)
+insert into storage.buckets (id, name, public)
+values ('assets', 'assets', true)
+on conflict (id) do nothing;
+
 -- Storage policies: public read + anon insert (ilk sürüm için pratik)
 do $$ begin
   create policy "photos public read"
@@ -20,12 +25,20 @@ do $$ begin
   with check (bucket_id = 'photos');
 exception when duplicate_object then null; end $$;
 
+-- Assets public read (yüklemeyi server yapacak)
+do $$ begin
+  create policy "assets public read"
+  on storage.objects for select
+  using (bucket_id = 'assets');
+exception when duplicate_object then null; end $$;
+
 -- 2. seviye çoklu müşteri: ortaklar (satış yaptığınız müşteriler)
 create table if not exists public.partners (
   slug text primary key,
   name text not null,
   email text,
   admin_key text not null,
+  logo_url text,
   active boolean default true,
   created_at timestamp with time zone default now()
 );
@@ -47,6 +60,7 @@ create table if not exists public.tenants (
   owner_first_name text,
   owner_last_name text,
   owner_photo_url text,
+  pin_code text,
   created_at timestamp with time zone default now()
 );
 -- Eğer tenants zaten varsa, yeni kolonları güvenle ekle
@@ -54,6 +68,8 @@ alter table if exists public.tenants add column if not exists partner_slug text;
 alter table if exists public.tenants add column if not exists owner_first_name text;
 alter table if exists public.tenants add column if not exists owner_last_name text;
 alter table if exists public.tenants add column if not exists owner_photo_url text;
+alter table if exists public.tenants add column if not exists pin_code text;
+alter table if exists public.partners add column if not exists logo_url text;
 -- FK yoksa ekle (varsa sessiz geç)
 do $$ begin
   alter table public.tenants

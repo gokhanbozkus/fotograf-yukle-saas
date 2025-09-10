@@ -27,6 +27,24 @@ export default async function GuestPage({ params }: { params: { slug: string } }
   const photos = await getPhotos(params.slug)
   return (
     <div className="container" data-theme-color={tenant.theme_color ?? '#8b5cf6'}>
+      {tenant.pin_code && (
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+            (function(){
+              try{
+                var key='pin:'+${JSON.stringify(params.slug)};
+                var ok=localStorage.getItem(key);
+                if(!ok){
+                  var pin=prompt('PIN gerekli');
+                  if(pin!==${JSON.stringify(tenant.pin_code)}){ location.href='/'; return; }
+                  localStorage.setItem(key,'1');
+                }
+              }catch(e){}
+            })();
+          `}}
+        />
+      )}
       <div className="card" style={{marginTop:12}}>
         <h2>{tenant.name}</h2>
         <p className="muted">Lütfen etkinlikten çektiğiniz 1-2 güzel fotoğrafı yükleyin. Teşekkürler! 📸</p>

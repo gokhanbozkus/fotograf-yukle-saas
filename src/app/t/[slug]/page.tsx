@@ -34,6 +34,25 @@ export default async function TenantPage({ params }: { params: { slug: string } 
 
   return (
     <div className="container" data-theme-color={tenant.theme_color ?? '#8b5cf6'}>
+      {tenant.pin_code && (
+        // Basit PIN kontrolü (client-side). Üretimde daha sağlam mekanizma eklenebilir.
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+            (function(){
+              try{
+                var key='pin:'+${JSON.stringify(params.slug)};
+                var ok=localStorage.getItem(key);
+                if(!ok){
+                  var pin=prompt('PIN gerekli');
+                  if(pin!==${JSON.stringify(tenant.pin_code)}){ location.href='/'; return; }
+                  localStorage.setItem(key,'1');
+                }
+              }catch(e){}
+            })();
+          `}}
+        />
+      )}
       <div className="header">
         {tenant.logo_url ? (
           <Image src={tenant.logo_url} alt={tenant.name} width={40} height={40} className="logo" />

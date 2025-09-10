@@ -4,11 +4,20 @@ import archiver from 'archiver'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(_: Request, { params }: { params: { slug: string } }) {
+export async function GET(req: Request, { params }: { params: { slug: string } }) {
   const slug = params.slug
   if (!slug) return NextResponse.json({ error: 'Missing slug' }, { status: 400 })
+  // PIN kontrolü (opsiyonel): ?pin=xxxx veya Header X-PIN
+  const url = new URL(req.url)
+  const pinParam = url.searchParams.get('pin') || req.headers.get('x-pin') || ''
 
   const sb = getSupabaseAdmin()
+  const { data: tenant } = await sb.from('tenants').select('pin_code').eq('slug', slug).maybeSingle()
+  if (tenant?.pin_code) {
+    if (!pinParam || pinParam !== tenant.pin_code) {
+      return NextResponse.json({ error: 'PIN required' }, { status: 401 })
+    }
+  }
   const { data: photos, error } = await sb
     .from('photos')
     .select('id, path, public_url, created_at')
