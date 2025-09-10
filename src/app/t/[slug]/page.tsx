@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { getSupabaseAdmin } from '@/lib/supabaseServer'
-import TenantUploader from './uploader'
+import ClientView from './ClientView'
 
 async function getTenant(slug: string) {
   const supabaseAdmin = getSupabaseAdmin()
@@ -47,23 +47,7 @@ export default async function TenantPage({ params }: { params: { slug: string } 
         <Image src={tenant.cover_url} alt="Kapak" className="cover" width={1200} height={400} />
       )}
 
-      <div className="card" style={{marginTop: 12}}>
-        <h3>Fotoğraf Yükle</h3>
-        <TenantUploader tenantSlug={tenant.slug} />
-      </div>
-
-      <div style={{marginTop: 16}}>
-        <h3>Galerİ</h3>
-        <div className="grid">
-          {photos?.map((p: any) => (
-            <a key={p.id} href={p.public_url} target="_blank" rel="noreferrer">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={p.public_url} alt="foto" style={{borderRadius: 8, border: '1px solid #1f2024'}} />
-            </a>
-          ))}
-          {!photos?.length && <div className="muted">Henüz fotoğraf yok.</div>}
-        </div>
-      </div>
+  <ClientView tenantSlug={tenant.slug} initialPhotos={photos as any} />
     </div>
   )
 }

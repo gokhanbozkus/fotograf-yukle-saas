@@ -1,10 +1,9 @@
 'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { supabaseClient } from '@/lib/supabase'
 
-export default function TenantUploader({ tenantSlug }: { tenantSlug: string }) {
-  const router = useRouter()
+export type UploadedPhoto = { id: string; tenant_slug: string; path: string; public_url: string; created_at: string }
+export default function TenantUploader({ tenantSlug, onUploaded }: { tenantSlug: string; onUploaded?: (p: UploadedPhoto) => void }) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
@@ -24,7 +23,7 @@ export default function TenantUploader({ tenantSlug }: { tenantSlug: string }) {
   if (error) throw new Error(`Storage upload failed: ${error.message}`)
       const { data: pub } = supabaseClient.storage.from('photos').getPublicUrl(data.path)
 
-      const res = await fetch('/api/photos', {
+  const res = await fetch('/api/photos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tenant_slug: tenantSlug, path: data.path, public_url: pub.publicUrl })
@@ -33,9 +32,9 @@ export default function TenantUploader({ tenantSlug }: { tenantSlug: string }) {
         const j = await res.json().catch(() => ({}))
         throw new Error(`API insert failed: ${j?.error || res.statusText}`)
       }
+  const inserted = await res.json().catch(() => null)
       setDone(true)
-  // Sayfayı yenilemeden galeriyi güncelle
-  router.refresh()
+  if (inserted && inserted.photo && onUploaded) onUploaded(inserted.photo)
     } catch (e: any) {
       setError(e?.message ?? 'Yükleme başarısız')
     } finally {

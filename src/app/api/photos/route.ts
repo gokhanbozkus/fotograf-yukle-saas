@@ -13,11 +13,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid path prefix' }, { status: 400 })
     }
     const sb = getSupabaseAdmin()
-    const { error } = await sb.from('photos').insert({ tenant_slug, path, public_url })
+    const { data, error } = await sb
+      .from('photos')
+      .insert({ tenant_slug, path, public_url })
+      .select('*')
+      .single()
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true, photo: data })
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || 'Unknown error' }, { status: 500 })
   }
