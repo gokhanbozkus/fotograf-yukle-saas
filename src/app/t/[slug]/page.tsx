@@ -41,6 +41,15 @@ export default async function TenantPage({ params }: { params: { slug: string } 
           <div className="logo" />
         )}
         <div className="title">{tenant.name}</div>
+        {(tenant.owner_first_name || tenant.owner_last_name) && (
+          <div className="muted" style={{marginLeft:8}}>
+            — {tenant.owner_first_name || ''} {tenant.owner_last_name || ''}
+          </div>
+        )}
+        {tenant.owner_photo_url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={tenant.owner_photo_url} alt="sahip" style={{width:36, height:36, borderRadius:18, marginLeft:8, objectFit:'cover', border:'1px solid #2a2b31'}} />
+        )}
       </div>
 
       {tenant.cover_url && (
