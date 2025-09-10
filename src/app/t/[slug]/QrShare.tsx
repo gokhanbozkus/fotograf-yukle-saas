@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import QRCode from 'qrcode'
+import * as QRCode from 'qrcode'
 
 export default function QrShare({ slug }: { slug: string }) {
   const [uploadQr, setUploadQr] = useState<string>('')
