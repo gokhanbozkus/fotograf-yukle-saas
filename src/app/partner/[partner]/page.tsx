@@ -1,6 +1,7 @@
 import { revalidatePath } from 'next/cache'
 import { notFound } from 'next/navigation'
 import { getSupabaseAdmin } from '@/lib/supabaseServer'
+import UploadLogoClient from '@/app/components/UploadLogoClient'
 
 async function getPartner(slug: string) {
   const sb = getSupabaseAdmin()
@@ -58,7 +59,7 @@ export default async function PartnerAdminPage({ params }: { params: { partner: 
             </div>
             <input className="input" name="owner_photo_url" placeholder="Sahip foto URL (opsiyonel)" />
             <input className="input" name="logo_url" placeholder="Logo URL (opsiyonel)" />
-            <UploadLogo slug="__from_form__" type="tenant" />
+            <UploadLogoClient type="tenant" />
             <input className="input" name="cover_url" placeholder="Kapak URL (opsiyonel)" />
             <input className="input" name="theme_color" placeholder="#8b5cf6" />
             <input className="input" name="pin_code" placeholder="Misafir PIN (opsiyonel)" />
@@ -91,17 +92,7 @@ export default async function PartnerAdminPage({ params }: { params: { partner: 
   )
 }
 
-function UploadLogo({ slug, type }: { slug: string; type: 'partner' | 'tenant' }) {
-  // Not: create form sırasında slug bilinmiyor olabilir; bu komponent listede düzenleme için daha uygundur.
-  return (
-    <form action="/api/assets/upload" method="post" encType="multipart/form-data">
-      <input type="hidden" name="type" value={type} />
-      <input className="input" name="slug" placeholder={`${type} slug`} defaultValue={slug} />
-      <input className="input" type="file" name="file" accept="image/*" />
-      <button className="btn secondary" type="submit" style={{marginTop:8}}>Dosyadan Logo Yükle</button>
-    </form>
-  )
-}
+// removed old UploadLogo form (now using UploadLogoClient)
 
 async function updateTenant(formData: FormData) {
   'use server'
@@ -142,7 +133,7 @@ function TenantEdit({ t, partner }: { t: any; partner: string }) {
         <input className="input" name="owner_photo_url" placeholder="Sahip foto URL" defaultValue={t.owner_photo_url || ''} />
         <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:8}}>
           <input className="input" name="logo_url" placeholder="Logo URL" defaultValue={t.logo_url || ''} />
-          <UploadLogo slug={t.slug} type="tenant" />
+          <UploadLogoClient slug={t.slug} type="tenant" />
         </div>
         <input className="input" name="cover_url" placeholder="Kapak URL" defaultValue={t.cover_url || ''} />
         <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:8}}>

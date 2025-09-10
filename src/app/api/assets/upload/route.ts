@@ -17,7 +17,13 @@ export async function POST(req: Request) {
 
   const ext = (file.name.split('.').pop() || 'png').toLowerCase()
   const safe = `${type}/${slug}/logo.${ext}`
-  const { error: upErr } = await sb.storage.from('assets').upload(safe, file, { upsert: true, contentType: file.type || 'image/png' })
+  let { error: upErr } = await sb.storage.from('assets').upload(safe, file, { upsert: true, contentType: file.type || 'image/png' })
+  if (upErr && /Bucket not found/i.test(upErr.message || '')) {
+    // Try to create bucket automatically and retry once
+    await sb.storage.createBucket('assets', { public: true }).catch(() => {})
+    const retry = await sb.storage.from('assets').upload(safe, file, { upsert: true, contentType: file.type || 'image/png' })
+    upErr = retry.error || null
+  }
   if (upErr) return NextResponse.json({ error: upErr.message }, { status: 500 })
   const { data: pub } = sb.storage.from('assets').getPublicUrl(safe)
   return NextResponse.json({ url: pub.publicUrl })

@@ -95,13 +95,8 @@ export default async function OwnerPage() {
   )
 }
 
+import UploadLogoClient from '@/app/components/UploadLogoClient'
+
 function UploadLogo({ slug, type }: { slug: string; type: 'partner' | 'tenant' }) {
-  return (
-    <form action="/api/assets/upload" method="post" encType="multipart/form-data">
-      <input type="hidden" name="type" value={type} />
-      <input type="hidden" name="slug" value={slug} />
-      <input className="input" type="file" name="file" accept="image/*" />
-      <button className="btn secondary" type="submit" style={{marginTop:8}}>Dosyadan Logo Yükle</button>
-    </form>
-  )
+  return <UploadLogoClient type={type} slug={slug} />
 }
