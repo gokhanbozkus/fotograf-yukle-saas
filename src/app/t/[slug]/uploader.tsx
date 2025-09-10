@@ -7,34 +7,42 @@ export default function TenantUploader({ tenantSlug, onUploaded }: { tenantSlug:
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
+  const [total, setTotal] = useState(0)
+  const [uploaded, setUploaded] = useState(0)
 
   async function handleFiles(files: FileList | null) {
     if (!files || !files.length) return
     setUploading(true)
     setError(null)
     setDone(false)
+    setTotal(files.length)
+    setUploaded(0)
     try {
-      const file = files[0]
-  const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
-      const now = new Date()
-  const uuid = (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`)
-  const path = `${tenantSlug}/${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')}/${uuid}.${ext}`
-  const { data, error } = await supabaseClient.storage.from('photos').upload(path, file, { upsert: false, contentType: file.type })
-  if (error) throw new Error(`Storage upload failed: ${error.message}`)
-      const { data: pub } = supabaseClient.storage.from('photos').getPublicUrl(data.path)
+      // Process sequentially for reliability
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        const ext = file.name.split('.').pop()?.toLowerCase() || 'dat'
+        const now = new Date()
+        const uuid = (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`)
+        const path = `${tenantSlug}/${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')}/${uuid}.${ext}`
+        const { data, error } = await supabaseClient.storage.from('photos').upload(path, file, { upsert: false, contentType: file.type })
+        if (error) throw new Error(`Storage upload failed: ${error.message}`)
+        const { data: pub } = supabaseClient.storage.from('photos').getPublicUrl(data.path)
 
-  const res = await fetch('/api/photos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tenant_slug: tenantSlug, path: data.path, public_url: pub.publicUrl })
-      })
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}))
-        throw new Error(`API insert failed: ${j?.error || res.statusText}`)
+        const res = await fetch('/api/photos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tenant_slug: tenantSlug, path: data.path, public_url: pub.publicUrl })
+        })
+        if (!res.ok) {
+          const j = await res.json().catch(() => ({}))
+          throw new Error(`API insert failed: ${j?.error || res.statusText}`)
+        }
+        const inserted = await res.json().catch(() => null)
+        setUploaded(i + 1)
+        if (inserted && inserted.photo && onUploaded) onUploaded(inserted.photo)
       }
-  const inserted = await res.json().catch(() => null)
       setDone(true)
-  if (inserted && inserted.photo && onUploaded) onUploaded(inserted.photo)
     } catch (e: any) {
       setError(e?.message ?? 'Yükleme başarısız')
     } finally {
@@ -44,11 +52,15 @@ export default function TenantUploader({ tenantSlug, onUploaded }: { tenantSlug:
 
   return (
     <div>
-      <input className="input" type="file" accept="image/*" onChange={(e) => handleFiles(e.target.files)} />
+      <input className="input" type="file" multiple accept="image/*,video/*" onChange={(e) => handleFiles(e.target.files)} />
       <div style={{marginTop:8}}>
-        <button className="btn" disabled={uploading} onClick={() => document.querySelector<HTMLInputElement>('input[type=file]')?.click()}>{uploading ? 'Yükleniyor…' : 'Fotoğraf Seç'}</button>
+        <button className="btn" disabled={uploading} onClick={() => document.querySelector<HTMLInputElement>('input[type=file]')?.click()}>{uploading ? `Yükleniyor… (${uploaded}/${total})` : 'Foto/Video Seç (Çoklu)'}
+        </button>
       </div>
-  {done && <div style={{color:'#4ade80', marginTop:8}}>Yüklendi! Galeri anında güncellendi ✅</div>}
+      {uploading && total > 1 && (
+        <div className="muted" style={{marginTop:8}}>Toplu yükleme: {uploaded}/{total}</div>
+      )}
+      {done && <div style={{color:'#4ade80', marginTop:8}}>Yükleme tamamlandı! Galeri anında güncellendi ✅</div>}
       {error && <div style={{color:'#f87171', marginTop:8}}>{error}</div>}
     </div>
   )

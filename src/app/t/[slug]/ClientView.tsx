@@ -26,12 +26,20 @@ export default function ClientView({ tenantSlug, initialPhotos }: { tenantSlug: 
       <div style={{marginTop: 16}}>
         <h3>Galeri</h3>
         <div className="grid">
-          {photos?.map((p) => (
-            <a key={p.id} href={p.public_url} target="_blank" rel="noreferrer">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={p.public_url} alt="foto" style={{borderRadius: 8, border: '1px solid #1f2024'}} />
-            </a>
-          ))}
+          {photos?.map((p) => {
+            const isVideo = /\.(mp4|mov|webm|mkv|avi)$/i.test(p.public_url)
+            return (
+              <a key={p.id} href={p.public_url} target="_blank" rel="noreferrer">
+                {isVideo ? (
+                  // eslint-disable-next-line jsx-a11y/media-has-caption
+                  <video src={p.public_url} style={{borderRadius: 8, border: '1px solid #1f2024', maxWidth: '100%'}} controls muted playsInline />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={p.public_url} alt="görsel" style={{borderRadius: 8, border: '1px solid #1f2024'}} />
+                )}
+              </a>
+            )
+          })}
           {!photos?.length && <div className="muted">Henüz fotoğraf yok.</div>}
         </div>
       </div>
