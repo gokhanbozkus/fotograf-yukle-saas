@@ -18,9 +18,14 @@ export default function TenantUploader({ tenantSlug, onUploaded }: { tenantSlug:
     setTotal(files.length)
     setUploaded(0)
     try {
+      const maxMb = parseInt(process.env.NEXT_PUBLIC_MAX_UPLOAD_MB || '25', 10)
+      const maxBytes = Math.max(1, maxMb) * 1024 * 1024
       // Process sequentially for reliability
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
+        if (file.size > maxBytes) {
+          throw new Error(`Dosya çok büyük (> ${maxMb} MB): ${file.name}`)
+        }
         const ext = file.name.split('.').pop()?.toLowerCase() || 'dat'
         const now = new Date()
         const uuid = (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`)
@@ -32,7 +37,7 @@ export default function TenantUploader({ tenantSlug, onUploaded }: { tenantSlug:
         const res = await fetch('/api/photos', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tenant_slug: tenantSlug, path: data.path, public_url: pub.publicUrl })
+          body: JSON.stringify({ tenant_slug: tenantSlug, path: data.path, public_url: pub.publicUrl, size: file.size, content_type: file.type })
         })
         if (!res.ok) {
           const j = await res.json().catch(() => ({}))
