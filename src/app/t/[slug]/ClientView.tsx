@@ -26,16 +26,16 @@ export default function ClientView({ tenantSlug, initialPhotos }: { tenantSlug: 
       <div style={{marginTop: 16}}>
         <h3>Galeri</h3>
         <div className="grid">
-          {photos?.map((p) => {
+    {photos?.map((p) => {
             const isVideo = /\.(mp4|mov|webm|mkv|avi)$/i.test(p.public_url)
             return (
               <a key={p.id} href={p.public_url} target="_blank" rel="noreferrer" className="thumb">
                 {isVideo ? (
                   // eslint-disable-next-line jsx-a11y/media-has-caption
-                  <video src={p.public_url} style={{maxWidth: '100%'}} controls muted playsInline />
+      <video src={p.public_url} style={{maxWidth: '100%'}} muted playsInline loop preload="metadata" />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={p.public_url} alt="görsel" />
+      <img src={p.public_url} alt="görsel" loading="lazy" decoding="async" />
                 )}
               </a>
             )
