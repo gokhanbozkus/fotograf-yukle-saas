@@ -10,9 +10,11 @@ export default function QrShare({ slug }: { slug: string }) {
 
   useEffect(() => {
     const origin = window.location.origin
+  // Prefer a custom public base URL if provided, else fall back to current origin
+  const base = (process.env.NEXT_PUBLIC_PUBLIC_BASE_URL || origin).replace(/\/$/, '')
   // Guest QR should point to the dedicated guest upload page, not the owner gallery
-  const u = `${origin}/t/${slug}/guest`
-    const z = `${origin}/api/t/${slug}/download`
+  const u = `${base}/t/${slug}/guest`
+  const z = `${base}/api/t/${slug}/download`
     setUploadUrl(u)
     setZipUrl(z)
     QRCode.toDataURL(u, { width: 320 }).then(setUploadQr).catch(() => {})

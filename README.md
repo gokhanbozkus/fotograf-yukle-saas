@@ -1,3 +1,13 @@
+# Fotoğraf Yükle SaaS — Notlar
+
+- Misafir QR’ları ve indirme linkleri için baz URL, `NEXT_PUBLIC_PUBLIC_BASE_URL` ile override edilebilir.
+  - Örn: `https://sizin-domain.com`
+  - Ayarlanmazsa, mevcut sayfanın origin’i (örn. `https://fotograf-yukle-saas.vercel.app`) kullanılır.
+- Baz URL’yi özel bir alan adına yönlendirmek, bazı mobil operatörlerde görülen `ERR_SSL_PROTOCOL_ERROR` gibi hataları önlemeye yardımcı olur.
+
+## Kurulum
+- Vercel Projenize aşağıdaki env’i ekleyin (Production/Preview/Development):
+  - `NEXT_PUBLIC_PUBLIC_BASE_URL = https://sizin-domain.com`
 # Fotoğraf Yükle SaaS (Multi-tenant)
 
 - Next.js 14 (app router) + Supabase (Auth opsiyonel, DB + Storage)
