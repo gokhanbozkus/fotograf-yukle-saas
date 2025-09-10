@@ -49,7 +49,7 @@ export default function TenantUploader({ tenantSlug }: { tenantSlug: string }) {
       <div style={{marginTop:8}}>
         <button className="btn" disabled={uploading} onClick={() => document.querySelector<HTMLInputElement>('input[type=file]')?.click()}>{uploading ? 'Yükleniyor…' : 'Fotoğraf Seç'}</button>
       </div>
-  {done && <div style={{color:'#4ade80', marginTop:8}}>Yüklendi! Galeri güncellendi.</div>}
+  {done && <div style={{color:'#4ade80', marginTop:8}}>Yüklendi! Galeri anında güncellendi ✅</div>}
       {error && <div style={{color:'#f87171', marginTop:8}}>{error}</div>}
     </div>
   )
