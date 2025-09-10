@@ -29,13 +29,13 @@ export default function ClientView({ tenantSlug, initialPhotos }: { tenantSlug: 
           {photos?.map((p) => {
             const isVideo = /\.(mp4|mov|webm|mkv|avi)$/i.test(p.public_url)
             return (
-              <a key={p.id} href={p.public_url} target="_blank" rel="noreferrer">
+              <a key={p.id} href={p.public_url} target="_blank" rel="noreferrer" className="thumb">
                 {isVideo ? (
                   // eslint-disable-next-line jsx-a11y/media-has-caption
-                  <video src={p.public_url} style={{borderRadius: 8, border: '1px solid #1f2024', maxWidth: '100%'}} controls muted playsInline />
+                  <video src={p.public_url} style={{maxWidth: '100%'}} controls muted playsInline />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={p.public_url} alt="görsel" style={{borderRadius: 8, border: '1px solid #1f2024'}} />
+                  <img src={p.public_url} alt="görsel" />
                 )}
               </a>
             )

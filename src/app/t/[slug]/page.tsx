@@ -47,14 +47,14 @@ export default async function TenantPage({ params }: { params: { slug: string } 
         <Image src={tenant.cover_url} alt="Kapak" className="cover" width={1200} height={400} />
       )}
 
-      <div className="card" style={{marginTop: 12, display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+    <div className="card" style={{marginTop: 12, display:'flex', justifyContent:'space-between', alignItems:'center'}}>
         <div>
           <strong>Toplu İndirme</strong>
           <div className="muted">Tüm fotoğrafları .zip olarak indir</div>
         </div>
         <div>
-          <a className="btn" href={`/api/t/${tenant.slug}/download`}>ZIP indir</a>
-          <a className="btn" style={{marginLeft:8}} href={`/t/${tenant.slug}/qr`}>QR Kodlar</a>
+      <a className="btn" href={`/api/t/${tenant.slug}/download`}>ZIP indir</a>
+      <a className="btn secondary" style={{marginLeft:8}} href={`/t/${tenant.slug}/qr`}>QR Kodlar</a>
         </div>
       </div>
 
