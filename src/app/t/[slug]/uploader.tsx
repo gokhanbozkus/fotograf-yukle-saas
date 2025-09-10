@@ -1,8 +1,10 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabaseClient } from '@/lib/supabase'
 
 export default function TenantUploader({ tenantSlug }: { tenantSlug: string }) {
+  const router = useRouter()
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
@@ -18,17 +20,19 @@ export default function TenantUploader({ tenantSlug }: { tenantSlug: string }) {
       const now = new Date()
   const uuid = (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`)
   const path = `${tenantSlug}/${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')}/${uuid}.${ext}`
-      const { data, error } = await supabaseClient.storage.from('photos').upload(path, file, { upsert: false, contentType: file.type })
-      if (error) throw error
-      const { data: pub } = supabaseClient.storage.from('photos').getPublicUrl(data.path)
+  const { data, error } = await supabaseClient.storage.from('photos').upload(path, file, { upsert: false, contentType: file.type })
+  if (error) throw new Error(`Storage upload failed: ${error.message}`)
+  const { data: pub } = supabaseClient.storage.from('photos').getPublicUrl(data.path)
 
-      const { error: dberr } = await supabaseClient.from('photos').insert({
+  const { error: dberr } = await supabaseClient.from('photos').insert({
         tenant_slug: tenantSlug,
         path: data.path,
         public_url: pub.publicUrl,
       })
-      if (dberr) throw dberr
+  if (dberr) throw new Error(`DB insert failed: ${dberr.message}`)
       setDone(true)
+  // Sayfayı yenilemeden galeriyi güncelle
+  router.refresh()
     } catch (e: any) {
       setError(e?.message ?? 'Yükleme başarısız')
     } finally {
