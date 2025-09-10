@@ -22,14 +22,17 @@ export default function TenantUploader({ tenantSlug }: { tenantSlug: string }) {
   const path = `${tenantSlug}/${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')}/${uuid}.${ext}`
   const { data, error } = await supabaseClient.storage.from('photos').upload(path, file, { upsert: false, contentType: file.type })
   if (error) throw new Error(`Storage upload failed: ${error.message}`)
-  const { data: pub } = supabaseClient.storage.from('photos').getPublicUrl(data.path)
+      const { data: pub } = supabaseClient.storage.from('photos').getPublicUrl(data.path)
 
-  const { error: dberr } = await supabaseClient.from('photos').insert({
-        tenant_slug: tenantSlug,
-        path: data.path,
-        public_url: pub.publicUrl,
+      const res = await fetch('/api/photos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tenant_slug: tenantSlug, path: data.path, public_url: pub.publicUrl })
       })
-  if (dberr) throw new Error(`DB insert failed: ${dberr.message}`)
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}))
+        throw new Error(`API insert failed: ${j?.error || res.statusText}`)
+      }
       setDone(true)
   // Sayfayı yenilemeden galeriyi güncelle
   router.refresh()
