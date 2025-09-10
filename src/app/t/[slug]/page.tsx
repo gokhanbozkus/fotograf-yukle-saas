@@ -52,7 +52,10 @@ export default async function TenantPage({ params }: { params: { slug: string } 
           <strong>Toplu İndirme</strong>
           <div className="muted">Tüm fotoğrafları .zip olarak indir</div>
         </div>
-        <a className="btn" href={`/api/t/${tenant.slug}/download`}>ZIP indir</a>
+        <div>
+          <a className="btn" href={`/api/t/${tenant.slug}/download`}>ZIP indir</a>
+          <a className="btn" style={{marginLeft:8}} href={`/t/${tenant.slug}/qr`}>QR Kodlar</a>
+        </div>
       </div>
 
       <ClientView tenantSlug={tenant.slug} initialPhotos={photos as any} />
