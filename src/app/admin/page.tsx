@@ -31,7 +31,15 @@ export default async function AdminPage() {
   const tenants = await getTenants()
   return (
     <div className="container">
-      <h2>Admin</h2>
+      <h2>Admin (Eski)</h2>
+      <div className="card" style={{marginTop:12, background:'linear-gradient(180deg, rgba(139,92,246,.12), rgba(0,0,0,.0))'}}>
+        <strong>Yeni paneller burada:</strong>
+        <ul style={{marginTop:8}}>
+          <li><a className="btn secondary" href="/owner">Owner Paneli</a> — Partner oluştur/düzenle, logo yükle</li>
+          <li style={{marginTop:6}} className="muted">Partner özel paneline erişim: /partner/&lt;partner-slug&gt;?key=&lt;partner_admin_key&gt;</li>
+        </ul>
+        <div className="muted" style={{marginTop:8}}>Bu sayfa eski akış içindir; yeni geliştirmeler Owner/Partner panellerinde.</div>
+      </div>
       <div className="card" style={{marginTop:12}}>
         <form action={createTenant}>
           <div style={{display:'grid', gap:8}}>
