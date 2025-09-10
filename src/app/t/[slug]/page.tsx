@@ -47,7 +47,15 @@ export default async function TenantPage({ params }: { params: { slug: string } 
         <Image src={tenant.cover_url} alt="Kapak" className="cover" width={1200} height={400} />
       )}
 
-  <ClientView tenantSlug={tenant.slug} initialPhotos={photos as any} />
+      <div className="card" style={{marginTop: 12, display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+        <div>
+          <strong>Toplu İndirme</strong>
+          <div className="muted">Tüm fotoğrafları .zip olarak indir</div>
+        </div>
+        <a className="btn" href={`/api/t/${tenant.slug}/download`}>ZIP indir</a>
+      </div>
+
+      <ClientView tenantSlug={tenant.slug} initialPhotos={photos as any} />
     </div>
   )
 }
