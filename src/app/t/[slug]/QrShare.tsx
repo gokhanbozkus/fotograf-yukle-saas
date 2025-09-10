@@ -10,7 +10,8 @@ export default function QrShare({ slug }: { slug: string }) {
 
   useEffect(() => {
     const origin = window.location.origin
-    const u = `${origin}/t/${slug}`
+  // Guest QR should point to the dedicated guest upload page, not the owner gallery
+  const u = `${origin}/t/${slug}/guest`
     const z = `${origin}/api/t/${slug}/download`
     setUploadUrl(u)
     setZipUrl(z)
