@@ -34,3 +34,6 @@ npm run dev
 ***
 
 Bu repo örnek bir başlangıçtır; ölçeklendirme, rate limit, CDN, optimize görüntü servisleri üretimde eklenmelidir.
+ 
+---
+CI test notu: Bu satır, otomatik deploy tetiklemek için eklenmiştir.
