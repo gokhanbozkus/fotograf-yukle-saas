@@ -19,6 +19,10 @@ export default async function QrPage({ params }: { params: { slug: string } }) {
         <h2>{tenant.name} — Paylaşım QR Kodları</h2>
         <p className="muted">Misafirlerin yükleme sayfasına hızlı geçmesi ve sahiplerin toplu indirmesi için QR kodları.</p>
         <QrShare slug={tenant.slug} />
+        <div style={{display:'flex', gap:8, marginTop:16}}>
+          <a className="btn" href={`/t/${tenant.slug}/guest`}>Misafir Yükleme</a>
+          <a className="btn" href={`/t/${tenant.slug}`}>Sahip Galerisi</a>
+        </div>
         <div style={{marginTop:16}}>
           <a className="btn" href={`/t/${tenant.slug}`}>Geri Dön</a>
         </div>
