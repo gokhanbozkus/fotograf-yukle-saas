@@ -2,7 +2,7 @@ import { getSupabaseAdmin } from '@/lib/supabaseServer'
 
 export const dynamic = 'force-dynamic'
 
-export default async function DebugPage({ searchParams }: { searchParams: { key?: string } }) {
+export default async function DebugPage({ searchParams }: { searchParams: { key?: string; slug?: string } }) {
   const provided = searchParams?.key || ''
   const adminKey = process.env.ADMIN_KEY || ''
   const authorized = adminKey && provided === adminKey
@@ -16,12 +16,21 @@ export default async function DebugPage({ searchParams }: { searchParams: { key?
 
   let supabaseOk: null | boolean = null
   let supabaseError: string | null = null
+  let photosCount: number | null = null
   if (authorized) {
     try {
       const sb = getSupabaseAdmin()
       const { error } = await sb.from('tenants').select('slug', { count: 'exact', head: true })
       if (error) throw error
       supabaseOk = true
+      // Optional: photos count for a tenant
+      if (searchParams?.slug) {
+        const { count, error: err2 } = await sb
+          .from('photos')
+          .select('id', { count: 'exact', head: true })
+          .eq('tenant_slug', searchParams.slug)
+        if (!err2) photosCount = count ?? 0
+      }
     } catch (e: any) {
       supabaseOk = false
       supabaseError = e?.message || String(e)
@@ -45,6 +54,9 @@ export default async function DebugPage({ searchParams }: { searchParams: { key?
           </ul>
           <h3>Supabase</h3>
           <p>DB erişimi: {supabaseOk === null ? '-' : supabaseOk ? 'OK' : 'ERROR'}</p>
+          {typeof photosCount === 'number' && (
+            <p>Foto sayısı (tenant="{searchParams.slug}"): {photosCount}</p>
+          )}
           {supabaseError && <pre style={{whiteSpace:'pre-wrap'}}>{supabaseError}</pre>}
         </div>
       )}
